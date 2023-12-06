@@ -14,7 +14,7 @@ public class Paddle : MonoBehaviour
         _rigidbody = GetComponent<Rigidbody>();
     }
 
-    private void Update()
+    private void FixedUpdate()
     {
         _rigidbody.velocity = new Vector3(_direction.x, 0, _direction.y) * _speed;
     }
