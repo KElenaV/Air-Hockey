@@ -3,26 +3,43 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+[RequireComponent(typeof(AudioSource))]
 public class GameController : MonoBehaviour
 {
     [SerializeField] private Puck _puck;
     [SerializeField] private TMP_Text _score;
+    [SerializeField] private TMP_Text _timer;
+    [SerializeField] private float _gameDuration = 60;
 
     private int _firstPlayerScore;
     private int _secondPlayerScore;
-    private bool _isGameOver = false;
     private float _restartDelay = 3f;
+    private AudioSource _audio;
 
-    private void OnEnable() 
+    private void Start()
+    {
+        _audio = GetComponent<AudioSource>();
+        _audio.Play();
+    }
+
+    private void OnEnable()
         => _puck.InGate += OnInGate;
 
-    private void OnDisable() 
+    private void OnDisable()
         => _puck.InGate -= OnInGate;
 
     private void Update()
     {
-        if (_isGameOver)
+        if (_gameDuration > 0)
+        {
+            _gameDuration -= Time.deltaTime;
+            _timer.text = _gameDuration.ToString("f0");
+        }
+        else
+        {
+            ShowWinner();
             StartCoroutine(RestartGame());
+        }
     }
 
     private void OnInGate(float gatePositionX)
@@ -33,18 +50,21 @@ public class GameController : MonoBehaviour
             _secondPlayerScore++;
 
         _score.text = $"{_firstPlayerScore} : {_secondPlayerScore}";
-
-        if (_firstPlayerScore == 3)
-            ShowWinner(1);
-        if (_secondPlayerScore == 3)
-            ShowWinner(2);
     }
 
-    private void ShowWinner(int winPlayerNumber)
+    private void ShowWinner()
     {
-        _score.text = $"Player {winPlayerNumber} win!";
+        if (_firstPlayerScore == _secondPlayerScore)
+        {
+            _score.text = "Friendship won";
+        }
+        else
+        {
+            int winPlayerNumber = _firstPlayerScore > _secondPlayerScore ? 1 : 2;
+            _score.text = $"Player {winPlayerNumber} win!";
+        }
+
         _puck.gameObject.SetActive(false);
-        _isGameOver = true;
     }
 
     private IEnumerator RestartGame()

@@ -2,11 +2,13 @@ using UnityEngine;
 using UnityEngine.Events;
 
 [RequireComponent(typeof(Rigidbody))]
+[RequireComponent(typeof(AudioSource))]
 public class Puck : MonoBehaviour
 {
     [SerializeField] private float _deceleration;
 
     private Rigidbody _rigidbody;
+    private AudioSource _audio;
     private float _startPositionX = 1.75f;
 
     public event UnityAction<float> InGate;
@@ -14,6 +16,7 @@ public class Puck : MonoBehaviour
     private void Start()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        _audio = GetComponent<AudioSource>();
     }
 
     private void FixedUpdate()
@@ -30,6 +33,8 @@ public class Puck : MonoBehaviour
             ResetPosition(gatePositionX);
             InGate?.Invoke(gatePositionX);
         }
+
+        _audio.Play();
     }
 
     private void ResetPosition(float lastPositionX)
